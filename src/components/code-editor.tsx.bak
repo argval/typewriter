@@ -1,0 +1,201 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Editor, { OnMount, OnChange } from '@monaco-editor/react';
+import { Button } from './ui/button';
+import { ResizableBox, ResizeCallbackData } from 'react-resizable';
+import 'react-resizable/css/styles.css';
+
+// Define Pyodide types
+type PyodideValue = string | number | boolean | null | undefined | PyodideValue[] | { [key: string]: PyodideValue };
+
+interface PyodideInterface {
+  runPython: (code: string) => PyodideValue;
+  globals: {
+    get: (key: string) => PyodideValue;
+    set: (key: string, value: PyodideValue) => void;
+  };
+}
+
+declare global {
+  interface Window {
+    loadPyodide: (config?: { indexURL?: string }) => Promise<PyodideInterface>;
+  }
+}
+
+interface CodeEditorProps {
+  defaultValue?: string;
+  onChange?: (value: string) => void;
+  defaultHeight?: number;
+}
+
+export function CodeEditor({ defaultValue = '', onChange, defaultHeight = 200 }: CodeEditorProps) {
+  const [output, setOutput] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [height, setHeight] = useState(defaultHeight);
+  const pyodideRef = useRef<PyodideInterface | null>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const scriptLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (scriptLoadedRef.current) return;
+
+    const loadPyodideScript = () => {
+      return new Promise<void>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+        script.crossOrigin = 'anonymous';
+        script.async = true;
+        
+        script.onload = () => {
+          scriptLoadedRef.current = true;
+          resolve();
+        };
+        
+        script.onerror = () => {
+          reject(new Error('Failed to load Pyodide script'));
+        };
+
+        document.head.appendChild(script);
+      });
+    };
+
+    const initializePyodide = async () => {
+      try {
+        setIsLoading(true);
+        await loadPyodideScript();
+        
+        if (typeof window.loadPyodide === 'function') {
+          pyodideRef.current = await window.loadPyodide({
+            indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
+          });
+          
+          // Initialize Python environment
+          await pyodideRef.current.runPython(`
+            import sys
+            import io
+            sys.stdout = io.StringIO()
+          `);
+        }
+      } catch (error) {
+        console.error('Error initializing Pyodide:', error);
+        setOutput('Error initializing Python environment. Please refresh the page.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializePyodide();
+
+    return () => {
+      scriptLoadedRef.current = false;
+      pyodideRef.current = null;
+    };
+  }, []);
+
+  const handleEditorDidMount: OnMount = (editor) => {
+    editorRef.current = editor;
+  };
+
+  const handleEditorChange: OnChange = (value) => {
+    if (value !== undefined) {
+      onChange?.(value);
+    }
+  };
+
+  const runCode = async () => {
+    if (!pyodideRef.current) {
+      setOutput('Python environment not initialized yet. Please wait or refresh the page.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setOutput('Running...');
+      
+      const currentCode = editorRef.current?.getValue() || defaultValue;
+      
+      await pyodideRef.current.runPython('sys.stdout.seek(0)\nsys.stdout.truncate(0)');
+      
+      const result = await pyodideRef.current.runPython(currentCode);
+      
+      const stdout = await pyodideRef.current.runPython('sys.stdout.getvalue()');
+      
+      const output = [
+        stdout,
+        result !== undefined && result !== null ? result.toString() : ''
+      ].filter(Boolean).join('\n');
+
+      setOutput(output || 'Code executed successfully');
+    } catch (error) {
+      if (error instanceof Error) {
+        setOutput(`Error: ${error.message}`);
+      } else {
+        setOutput('An unexpected error occurred while running the code');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearOutput = () => {
+    setOutput('');
+  };
+
+  const handleResize = (e: React.SyntheticEvent, data: ResizeCallbackData) => {
+    setHeight(data.size.height);
+  };
+
+  return (
+    <ResizableBox
+      width={Infinity}
+      height={height}
+      minConstraints={[Infinity, 100]}
+      maxConstraints={[Infinity, 1000]}
+      onResize={handleResize}
+      resizeHandles={['s']}
+      className="relative"
+    >
+      <div className="flex flex-col h-full">
+        <div className="flex-grow border rounded-lg overflow-hidden">
+          <Editor
+            height="100%"
+            defaultValue={defaultValue}
+            onChange={handleEditorChange}
+            onMount={handleEditorDidMount}
+            language="python"
+            theme="vs-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+            }}
+          />
+        </div>
+        
+        <div className="flex gap-2 mt-2">
+          <Button 
+            onClick={runCode}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Running...' : 'Run Code'}
+          </Button>
+          <Button 
+            onClick={clearOutput}
+            variant="outline"
+          >
+            Clear Output
+          </Button>
+        </div>
+
+        <div className="mt-2 p-4 bg-black text-white font-mono text-sm rounded-lg whitespace-pre-wrap overflow-auto" style={{ height: Math.max(100, height * 0.3) }}>
+          {output || 'Output will appear here...'}
+        </div>
+      </div>
+      
+      <div className="absolute bottom-0 left-0 right-0 h-2 bg-gray-200 cursor-ns-resize hover:bg-gray-300 transition-colors" />
+    </ResizableBox>
+  );
+}
