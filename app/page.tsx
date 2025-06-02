@@ -35,8 +35,8 @@ import { MarkdownRenderer } from "@/components/markdown-renderer"
 import { FileSidebar } from "@/components/file-sidebar"
 import { AIAssistant } from "@/components/ai-assistant"
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts"
-import { EnhancedWhiteboard } from "@/components/enhanced-whiteboard"
 import { Collaboration } from "@/components/collaboration"
+import { Tldraw } from "@/components/tldraw-wrapper"
 
 interface Cell {
   id: string
@@ -963,19 +963,20 @@ Key points:
             </div>
             {cell.isEditing ? (
               <div className="h-[400px] border rounded-lg overflow-hidden">
-                <EnhancedWhiteboard
-                  onSave={(data) => updateCellContent(cell.id, data)}
-                  initialData={cell.drawingData}
+                <Tldraw
+                  onSave={(data) => updateCellContent(cell.id, JSON.stringify(data))}
+                  initialData={cell.content ? JSON.parse(cell.content) : undefined}
                 />
               </div>
             ) : (
               <div className="bg-gray-50 rounded-lg border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center h-64 dark:bg-gray-900 dark:border-gray-700">
-                {cell.content || cell.drawingData ? (
-                  <div className="w-full h-full bg-white dark:bg-gray-800">
-                    {/* Rendered whiteboard content would go here */}
-                    <div className="text-center pt-16">
+                {cell.content ? (
+                  <div className="w-full h-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                    <div className="text-center">
                       <Pen className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Whiteboard content</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Whiteboard drawing (click Edit to view)
+                      </p>
                     </div>
                   </div>
                 ) : (
