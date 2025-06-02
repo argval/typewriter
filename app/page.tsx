@@ -1265,7 +1265,7 @@ Key points:
             <div className="text-center py-12">
               <div className="text-gray-500 dark:text-gray-400">
                 <FileText className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">Welcome to NoteSync</h3>
+                <h3 className="text-lg font-medium mb-2">Welcome to Typewriter</h3>
                 <p className="text-sm">Create your first notebook or select one from the sidebar to get started.</p>
               </div>
             </div>

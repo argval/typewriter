@@ -6,9 +6,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "NoteSync - Multi-Device Notebook Application",
+  title: "Typewriter - Multi-Device Notebook Application",
   description: "A powerful, multi-device notebook application with Markdown, Code, and Whiteboard cells",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({

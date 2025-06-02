@@ -233,7 +233,7 @@ export function FileSidebar({
   return (
     <div className="w-64 border-r bg-white dark:bg-gray-900 dark:border-gray-800 flex flex-col h-full">
       <div className="p-4 border-b dark:border-gray-800">
-        <h1 className="text-xl font-bold mb-2">NoteSync</h1>
+        <h1 className="text-xl font-bold mb-2">Typewriter</h1>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
           <Input
