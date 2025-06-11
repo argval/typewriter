@@ -1,30 +1,48 @@
-# File Manager
-
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
-
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/anurags-projects-e5d87ca7/v0-file-manager)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/TpJm9BFApwE)
+# Typewriter
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+Typewriter is a multi-device notebook application inspired by Jupyter notebooks. It integrates Markdown, Code Execution, and Whiteboard (Handwriting) Cells to provide a versatile environment for note-taking, coding, and creative work.
 
-## Deployment
+## Features
 
-Your project is live at:
+- **Cell-based Interface**: Create and organize content in different cell types
+- **Markdown Support**: Write and render rich text with full Markdown syntax
+- **Code Execution**: Run code snippets directly in the notebook
+- **Whiteboard/Handwriting**: Draw, sketch, and handwrite notes
+- **File Organization**: Manage your notebooks with an intuitive file system
+- **Theme Support**: Switch between light and dark modes
+- **Cross-platform**: Works on Desktop, Tablet/Mobile, and Web
 
-**[https://vercel.com/anurags-projects-e5d87ca7/v0-file-manager](https://vercel.com/anurags-projects-e5d87ca7/v0-file-manager)**
+## Technology Stack
 
-## Build your app
+- **Frontend**: Next.js with React 19
+- **UI Components**: Radix UI and Tailwind CSS
+- **Markdown**: react-markdown for rendering
+- **Code Highlighting**: react-syntax-highlighter
+- **Whiteboard**: Custom canvas implementation
+- **Theming**: next-themes
 
-Continue building your app on:
+## Development
 
-**[https://v0.dev/chat/projects/TpJm9BFApwE](https://v0.dev/chat/projects/TpJm9BFApwE)**
+```bash
+# Install dependencies
+npm install
 
-## How It Works
+# Run development server
+npm run dev
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## Roadmap
+
+- Backend services for data persistence
+- Multi-device sync and offline support
+- Enhanced code execution environment
+- AI features for code explanation and organization
+- Real-time collaboration
